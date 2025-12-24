@@ -64,18 +64,15 @@ class ScreenshotSelectionView: NSView {
         
         // Only complete if selection has meaningful size
         if selectionRect.width > 10 && selectionRect.height > 10 {
-            // Store the rect and completion handler before resetting
+            // Store the rect before resetting
             let rectToUse = selectionRect
-            let completion = onSelectionComplete
             
-            // Reset first
+            // Reset UI first
             selectionRect = .zero
             needsDisplay = true
             
-            // Call completion handler after a tiny delay to ensure UI is updated
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                completion?(rectToUse)
-            }
+            // Call completion handler immediately (we're already on main thread)
+            onSelectionComplete?(rectToUse)
         } else {
             // Reset
             selectionRect = .zero

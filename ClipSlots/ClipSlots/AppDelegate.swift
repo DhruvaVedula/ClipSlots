@@ -351,16 +351,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, HotkeyManage
     
     private func captureAndStoreScreenshot(slotIndex: Int) {
         let slotLetter = slotLetter(for: slotIndex)
-        print("📸 Capturing screenshot for slot \(slotLetter)...")
+        print("📸 Starting screenshot selection for slot \(slotLetter)...")
+        print("   Click and drag to select area, or press ESC to cancel")
         
-        guard let imageData = ScreenshotManager.shared.captureScreenshot() else {
-            print("❌ ERROR: Failed to capture screenshot")
-            return
+        // Use area selection
+        ScreenshotManager.shared.captureScreenshotWithSelection { [weak self] imageData in
+            guard let self = self else { return }
+            
+            if let imageData = imageData {
+                self.slotStore.storeImage(imageData, in: slotIndex)
+                print("✅ Screenshot captured and stored to slot \(slotLetter)")
+                // Menu will auto-rebuild when opened next time (via menuWillOpen delegate)
+            } else {
+                print("❌ Screenshot capture cancelled or failed")
+            }
         }
-        
-        slotStore.storeImage(imageData, in: slotIndex)
-        print("✅ Screenshot captured and stored to slot \(slotLetter)")
-        
-        // Menu will auto-rebuild when opened next time (via menuWillOpen delegate)
     }
 }
